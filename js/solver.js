@@ -250,11 +250,10 @@ function focusCell(row, col) {
     return;
   }
 
-  try {
-    input.focus({ preventScroll: true });
-  } catch {
-    input.focus();
-  }
+  const scrollLeft = window.scrollX;
+  const scrollTop = window.scrollY;
+  input.focus();
+  window.scrollTo(scrollLeft, scrollTop);
   const caret = input.value.length;
   input.setSelectionRange(caret, caret);
   state.activeCell = { row, col };
