@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crosswordsmith Maker</title>
+    <meta name="description" content="Generate a crossword from words and clues." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+
+    <header class="site-header">
+      <h1>Crosswordsmith Maker</h1>
+      <p>Feed words and clues, then generate a naturally-sized crossword.</p>
+      <nav class="top-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="maker.html" aria-current="page">Maker</a>
+        <a href="solver.html">Solver</a>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>Create Puzzle</h2>
+        <div class="meta-grid maker-meta-grid">
+          <label>
+            Puzzle Title
+            <input id="puzzle-title" type="text" placeholder="Daily Crossword" />
+          </label>
+          <label>
+            Author
+            <input id="puzzle-author" type="text" placeholder="Your name" />
+          </label>
+        </div>
+
+        <div class="mode-tabs" role="tablist" aria-label="Maker mode">
+          <button id="mode-automatic-btn" type="button" class="mode-tab-btn active" role="tab" aria-selected="true">
+            Automatic
+          </button>
+          <button id="mode-manual-btn" type="button" class="mode-tab-btn" role="tab" aria-selected="false">
+            Manual
+          </button>
+        </div>
+
+        <section id="automatic-section" aria-label="Automatic crossword builder">
+          <section class="word-bank" aria-label="Word and clue input rows">
+            <div class="input-header-row">
+              <h3>Words and Clues</h3>
+              <button id="add-row-btn" type="button" class="secondary-btn">Add Row</button>
+            </div>
+            <p class="hint input-hint">Enter one answer and clue per row. Start with 5 and add more as needed.</p>
+
+            <div id="entry-rows" class="entry-rows" role="group" aria-label="Clue and answer pairs"></div>
+          </section>
+
+          <section class="generation-controls" aria-label="Generation controls">
+            <label>
+              Generation Strategy
+              <select id="generation-mode">
+                <option value="compactness" selected>Compactness (tighter layout)</option>
+                <option value="maxIntersections">Max Intersections (more crossings)</option>
+              </select>
+            </label>
+          </section>
+
+          <div class="toolbar">
+            <button id="generate-btn" type="button">Generate Crossword</button>
+          </div>
+        </section>
+
+        <section id="manual-section" class="manual-builder hidden" aria-label="Manual grid builder">
+          <div class="toolbar">
+            <button id="manual-block-toggle-btn" type="button" class="secondary-btn" aria-pressed="false">
+              Toggle Black Squares: Off
+            </button>
+            <button id="manual-clear-btn" type="button" class="secondary-btn">Clear Letters</button>
+            <button id="manual-recenter-btn" type="button" class="secondary-btn">Recenter</button>
+            <button id="manual-build-btn" type="button">Build Puzzle</button>
+          </div>
+
+          <p class="hint">
+            Type letters directly into the grid, like placing tiles on graph paper. Scroll in any direction to reveal
+            more space — the grid keeps extending as you go. Turn on "Toggle Black Squares" to click cells into
+            blocks instead. Clue numbers update automatically as you edit; fill in the clue text below, then click
+            Build Puzzle.
+          </p>
+
+          <div id="manual-grid-viewport" class="manual-grid-viewport">
+            <div id="manual-grid" class="crossword-grid" role="grid" aria-label="Manual crossword grid"></div>
+          </div>
+
+          <div class="clues-grid">
+            <section>
+              <h3>Across</h3>
+              <ol id="manual-across-clues" class="solver-clues manual-clue-list"></ol>
+            </section>
+            <section>
+              <h3>Down</h3>
+              <ol id="manual-down-clues" class="solver-clues manual-clue-list"></ol>
+            </section>
+          </div>
+        </section>
+
+        <div class="toolbar">
+          <input id="save-name-input" type="text" class="link-input" placeholder="Draft name (e.g. Weekly Puzzle)" />
+          <button id="save-local-btn" type="button">Save Draft</button>
+          <button id="download-btn" type="button" class="secondary-btn">Download .json</button>
+          <label class="file-upload-btn">
+            Upload .json
+            <input id="upload-input" type="file" accept="application/json,.json" hidden />
+          </label>
+          <button id="share-btn" type="button">Generate Solver Link</button>
+        </div>
+
+        <section id="saved-drafts-section" class="report-box" aria-live="polite">
+          <h3>Saved Drafts (this browser)</h3>
+          <p id="saved-drafts-empty" class="hint">No drafts saved in this browser yet.</p>
+          <ul id="saved-drafts-list" class="saved-drafts-list"></ul>
+        </section>
+
+        <p id="maker-message" class="hint">
+          Fill at least 3 rows, then click Generate Crossword.
+        </p>
+
+        <section id="placement-report" class="report-box hidden" aria-live="polite">
+          <h3>Placement Report</h3>
+          <p id="placement-summary" class="hint"></p>
+          <ul id="unplaced-list" class="report-list"></ul>
+        </section>
+
+        <label class="share-output">
+          Solver URL
+          <div class="toolbar">
+            <input id="share-url" type="text" class="link-input" readonly />
+            <button id="copy-link-btn" type="button" class="secondary-btn">Copy Link</button>
+          </div>
+        </label>
+      </section>
+
+      <section id="generated-panel" class="panel hidden" aria-live="polite">
+        <h2>Generated Layout</h2>
+        <div class="board-wrap">
+          <div id="maker-grid" class="crossword-grid" role="grid" aria-label="Generated crossword"></div>
+        </div>
+
+        <div class="clues-grid">
+          <section>
+            <h3>Across</h3>
+            <ol id="across-clues" class="solver-clues"></ol>
+          </section>
+          <section>
+            <h3>Down</h3>
+            <ol id="down-clues" class="solver-clues"></ol>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <small>Static app for GitHub Pages. No server required.</small>
+    </footer>
+
+    <script type="module" src="js/maker.js"></script>
+  </body>
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crosswordsmith Solver</title>
+    <meta name="description" content="Solve shared crossword puzzles in the browser." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+
+    <header class="site-header">
+      <h1>Crosswordsmith Solver</h1>
+      <p>Open a shared link or solve the featured puzzle from the home page.</p>
+      <nav class="top-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="maker.html">Maker</a>
+        <a href="solver.html" aria-current="page">Solver</a>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2 id="solver-title">No Puzzle Loaded</h2>
+        <p id="solver-author" class="hint">Load from a link with #p=... or from Home.</p>
+
+        <div class="share-output">
+          <label for="load-link-input">Open a Solver Link</label>
+          <div class="toolbar">
+            <input id="load-link-input" class="link-input" type="text" placeholder="Paste a solver link or #p=... code" />
+            <button id="load-link-btn" type="button">Load Puzzle</button>
+          </div>
+          <p id="load-link-message" class="hint"></p>
+        </div>
+
+        <div class="toolbar">
+          <button id="check-btn" type="button" disabled>Check Fill</button>
+          <button id="reveal-btn" type="button" disabled>Reveal Puzzle</button>
+          <button id="reset-btn" type="button" disabled>Clear Fill</button>
+        </div>
+      </section>
+
+      <section id="solver-panel" class="panel hidden">
+        <div class="board-wrap">
+          <div id="solver-grid" class="crossword-grid" role="grid" aria-label="Crossword solver grid"></div>
+        </div>
+
+        <div class="clues-grid">
+          <section>
+            <h3>Across</h3>
+            <ul id="across-clues" class="solver-clues"></ul>
+          </section>
+          <section>
+            <h3>Down</h3>
+            <ul id="down-clues" class="solver-clues"></ul>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <small>Static app for GitHub Pages. No server required.</small>
+    </footer>
+
+    <script type="module" src="js/solver.js"></script>
+  </body>
+</html>

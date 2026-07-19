@@ -1,0 +1,664 @@
+:root {
+  --bg: #f8f3e8;
+  --paper: #fffdf7;
+  --ink: #181310;
+  --muted: #6a5c53;
+  --accent: #d9421b;
+  --accent-soft: #ff8f6d;
+  --line: #d8c8ba;
+  --good: #2a7e3f;
+  --bad: #a42020;
+  --black: #12100f;
+}
+
+a {
+  color: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 20% 20%, #fff8df 0%, var(--bg) 55%, #efe5d4 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.bg-orb {
+  position: fixed;
+  border-radius: 999px;
+  filter: blur(32px);
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: -1;
+  animation: drift 10s ease-in-out infinite alternate;
+}
+
+.orb-a {
+  width: 320px;
+  height: 320px;
+  background: #ffd57b;
+  top: -100px;
+  right: 8%;
+}
+
+.orb-b {
+  width: 260px;
+  height: 260px;
+  background: #ff9f85;
+  bottom: -100px;
+  left: 4%;
+  animation-duration: 13s;
+}
+
+.site-header,
+.layout,
+.site-footer {
+  width: min(1100px, 92vw);
+  margin-inline: auto;
+}
+
+.site-header {
+  padding: 2.4rem 0 1.2rem;
+  animation: rise-in 0.45s ease;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-family: "Fraunces", serif;
+  font-size: clamp(2.1rem, 5vw, 3.3rem);
+}
+
+.site-header p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+}
+
+.top-nav {
+  margin-top: 1rem;
+  display: inline-flex;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.28rem;
+}
+
+.top-nav a {
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  font-weight: 600;
+}
+
+.top-nav a[aria-current="page"] {
+  background: var(--ink);
+  color: #fff;
+}
+
+.layout {
+  display: grid;
+}
+
+.panel {
+  background: color-mix(in srgb, var(--paper), #ffffff 50%);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 1.2rem;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 15px 30px rgba(52, 33, 12, 0.08);
+  animation: rise-in 0.4s ease;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 0.7rem;
+}
+
+.maker-meta-grid {
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+}
+
+label {
+  font-size: 0.9rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+input,
+button,
+textarea {
+  font: inherit;
+}
+
+input,
+textarea {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  background: #fffdf9;
+}
+
+.toolbar {
+  margin-top: 0.95rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+.hint {
+  color: var(--muted);
+  margin: 0.85rem 0;
+}
+
+.board-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.7rem;
+  background: #fffefa;
+}
+
+.hidden {
+  display: none;
+}
+
+.crossword-grid {
+  display: grid;
+  gap: 2px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.cell {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #dacbbb;
+  background: #fff;
+  position: relative;
+}
+
+.cell.black {
+  background: var(--black);
+  border-color: #000;
+}
+
+.cell.active-word {
+  background: #f6efd9;
+}
+
+.cell.active-cell {
+  background: #e7d7b4;
+  border-color: #be9d6d;
+}
+
+.cell-num {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-size: 0.58rem;
+  color: #5c4d41;
+  user-select: none;
+}
+
+.cell input {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 1rem;
+  background: transparent;
+  padding: 0;
+}
+
+.cell input:focus {
+  outline: 2px solid #d7b784;
+}
+
+.clues-grid {
+  margin-top: 1rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+}
+
+.clue-list {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.clue-item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.clue-item span {
+  font-weight: 700;
+}
+
+.share-output {
+  margin-top: 0.9rem;
+}
+
+.link-input {
+  flex: 1 1 260px;
+  min-width: 200px;
+}
+
+.file-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f2e5d7;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.saved-drafts-list {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.saved-draft-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fffef9;
+}
+
+.saved-draft-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-draft-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.saved-draft-actions button {
+  padding: 0.35rem 0.55rem;
+  font-size: 0.85rem;
+}
+
+.solver-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.solver-meta strong {
+  font-size: 1.2rem;
+}
+
+.solver-meta span {
+  color: var(--muted);
+}
+
+.solver-clues {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.solver-clues li {
+  border-radius: 8px;
+  padding: 0.15rem 0.35rem;
+  transition: background-color 120ms ease, color 120ms ease;
+  cursor: pointer;
+}
+
+.solver-clues li.active-clue {
+  background: #f5ecd8;
+  color: #2f2418;
+}
+
+.solver-clues li:hover {
+  background: #f7f0de;
+}
+
+.good {
+  color: var(--good);
+}
+
+.bad {
+  color: var(--bad);
+}
+
+.site-footer {
+  padding: 1rem 0 2rem;
+  color: var(--muted);
+}
+
+.word-bank {
+  margin-top: 0.8rem;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.input-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.input-header-row h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.secondary-btn {
+  background: #f2e5d7;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.input-hint {
+  margin-top: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.entry-rows {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fffef9;
+  padding: 0.55rem;
+  max-height: 320px;
+  overflow-y: auto;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.entry-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(130px, 190px) auto;
+  gap: 0.8rem;
+  align-items: end;
+}
+
+.entry-row label {
+  min-width: 0;
+}
+
+.entry-row input {
+  width: 100%;
+}
+
+.entry-answer {
+  text-transform: uppercase;
+}
+
+.remove-row-btn {
+  background: #efe3d5;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.generation-controls {
+  margin-top: 0.9rem;
+}
+
+.mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.9rem 0;
+}
+
+.mode-tab-btn {
+  background: #f2e5d7;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.mode-tab-btn.active {
+  background: var(--ink);
+  color: #fff;
+}
+
+.manual-builder {
+  margin-top: 0.6rem;
+}
+
+.manual-grid-viewport {
+  width: 100%;
+  max-width: 640px;
+  height: 440px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.7rem;
+  background: #fffefa repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 35px,
+      rgba(90, 70, 50, 0.06) 35px,
+      rgba(90, 70, 50, 0.06) 36px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 35px,
+      rgba(90, 70, 50, 0.06) 35px,
+      rgba(90, 70, 50, 0.06) 36px
+    );
+  margin: 0 auto;
+}
+
+/* The manual grid only renders the cells near the current scroll position
+   (see renderManualWindow in maker.js) rather than every cell in the
+   pannable range, so it uses absolute positioning within an explicitly
+   sized canvas instead of the automatic/solver grids' CSS Grid layout. */
+#manual-grid {
+  position: relative;
+  display: block;
+}
+
+#manual-grid .cell {
+  position: absolute;
+}
+
+
+.crossword-grid.block-mode .cell:not(.black) input {
+  cursor: cell;
+}
+
+.crossword-grid.block-mode .cell.black {
+  cursor: pointer;
+}
+
+.manual-clue-item {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.manual-clue-item .clue-num {
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.manual-clue-input {
+  width: 100%;
+}
+
+select {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  background: #fffdf9;
+  font: inherit;
+}
+
+.report-box {
+  margin-top: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fffaf3;
+  padding: 0.75rem;
+}
+
+.report-box h3 {
+  margin: 0;
+}
+
+.report-list {
+  margin: 0;
+  margin-top: 0.5rem;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.home-layout {
+  grid-template-columns: 1.3fr 1fr;
+  gap: 1rem;
+}
+
+.hero-panel {
+  animation-delay: 0.06s;
+}
+
+.featured-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.7rem;
+}
+
+.featured-meta strong {
+  font-size: 1.2rem;
+}
+
+.featured-meta span {
+  color: var(--muted);
+}
+
+.pill-row {
+  margin-top: 0.7rem;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+}
+
+.btn-link {
+  display: inline-flex;
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-link.secondary {
+  background: #f2e5d7;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.steps-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+@keyframes rise-in {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateY(0) translateX(0);
+  }
+  to {
+    transform: translateY(12px) translateX(14px);
+  }
+}
+
+@media (max-width: 860px) {
+  .meta-grid {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  .home-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .clues-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cell {
+    width: 32px;
+    height: 32px;
+  }
+
+  .entry-row {
+    grid-template-columns: 1fr;
+  }
+}
