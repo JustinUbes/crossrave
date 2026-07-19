@@ -27,7 +27,7 @@
       </nav>
     </header>
 
-    <main class="layout">
+    <main class="layout solver-layout">
       <section class="panel">
         <h2 id="solver-title">No Puzzle Loaded</h2>
         <p id="solver-author" class="hint">Load from a link with #p=... or from Home.</p>
@@ -48,17 +48,18 @@
         </div>
       </section>
 
-      <section id="solver-panel" class="panel hidden">
+      <section id="solver-panel" class="panel hidden solver-panel">
         <div class="board-wrap">
           <div id="solver-grid" class="crossword-grid" role="grid" aria-label="Crossword solver grid"></div>
         </div>
+        <p class="solver-scroll-hint">Wide puzzle? Scroll inside the grid area to see the full board.</p>
 
         <div class="clues-grid">
-          <section>
+          <section class="solver-clue-section">
             <h3>Across</h3>
             <ul id="across-clues" class="solver-clues"></ul>
           </section>
-          <section>
+          <section class="solver-clue-section">
             <h3>Down</h3>
             <ul id="down-clues" class="solver-clues"></ul>
           </section>

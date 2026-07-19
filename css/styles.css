@@ -105,6 +105,11 @@ body {
   display: grid;
 }
 
+.solver-layout {
+  width: min(1500px, 97vw);
+  gap: 1rem;
+}
+
 .panel {
   background: color-mix(in srgb, var(--paper), #ffffff 50%);
   border: 1px solid var(--line);
@@ -172,11 +177,13 @@ button:hover {
 }
 
 .board-wrap {
+  max-width: 100%;
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 0.7rem;
   background: #fffefa;
+  overscroll-behavior-x: contain;
 }
 
 .hidden {
@@ -184,6 +191,7 @@ button:hover {
 }
 
 .crossword-grid {
+  --cell-size: 34px;
   display: grid;
   gap: 2px;
   width: fit-content;
@@ -191,8 +199,8 @@ button:hover {
 }
 
 .cell {
-  width: 36px;
-  height: 36px;
+  width: var(--cell-size);
+  height: var(--cell-size);
   border: 1px solid #dacbbb;
   background: #fff;
   position: relative;
@@ -239,10 +247,13 @@ button:hover {
 }
 
 .clues-grid {
-  margin-top: 1rem;
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(2, minmax(220px, 1fr));
+  align-content: start;
+  min-width: 0;
+  grid-column: 2 / 3;
+  grid-row: 1 / span 2;
 }
 
 .clue-list {
@@ -344,6 +355,9 @@ button:hover {
   list-style: none;
   display: grid;
   gap: 0.4rem;
+  max-height: min(60vh, 540px);
+  overflow: auto;
+  padding-right: 0.35rem;
 }
 
 .solver-clues li {
@@ -360,6 +374,36 @@ button:hover {
 
 .solver-clues li:hover {
   background: #f7f0de;
+}
+
+.solver-panel {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
+}
+
+.solver-scroll-hint {
+  grid-column: 1 / 2;
+  margin: -0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.solver-panel .board-wrap {
+  grid-column: 1 / 2;
+}
+
+.solver-clue-section {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+.solver-clue-section h3 {
+  margin: 0;
 }
 
 .good {
@@ -653,12 +697,28 @@ select {
     grid-template-columns: 1fr;
   }
 
-  .cell {
-    width: 32px;
-    height: 32px;
+  .crossword-grid {
+    --cell-size: 30px;
   }
 
   .entry-row {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1180px) {
+  .solver-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .solver-panel .board-wrap,
+  .solver-scroll-hint,
+  .clues-grid {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .solver-clues {
+    max-height: 320px;
   }
 }
