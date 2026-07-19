@@ -257,7 +257,7 @@ function focusCell(row, col) {
 
   const restoreWindowScroll = captureWindowScroll();
   input.focus();
-  restoreWindowScroll();
+  requestAnimationFrame(restoreWindowScroll);
   const caret = input.value.length;
   input.setSelectionRange(caret, caret);
   state.activeCell = { row, col };
