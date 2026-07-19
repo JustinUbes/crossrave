@@ -164,6 +164,14 @@ function scrollClueWithinList(clueItem) {
   }
 }
 
+function captureWindowScroll() {
+  const scrollLeft = window.scrollX;
+  const scrollTop = window.scrollY;
+  return () => {
+    window.scrollTo(scrollLeft, scrollTop);
+  };
+}
+
 function updateActiveHighlights() {
   state.cellsByCoord.forEach((cellEl) => {
     cellEl.classList.remove("active-word", "active-cell");
@@ -226,13 +234,10 @@ function focusClue(number, direction) {
     return;
   }
 
-  const scrollLeft = window.scrollX;
-  const scrollTop = window.scrollY;
+  const restoreWindowScroll = captureWindowScroll();
   state.activeDirection = direction;
   focusCell(start.row, start.col);
-  requestAnimationFrame(() => {
-    window.scrollTo(scrollLeft, scrollTop);
-  });
+  requestAnimationFrame(restoreWindowScroll);
 }
 
 function findCurrentClueIndex(row, col, direction) {
@@ -250,10 +255,9 @@ function focusCell(row, col) {
     return;
   }
 
-  const scrollLeft = window.scrollX;
-  const scrollTop = window.scrollY;
+  const restoreWindowScroll = captureWindowScroll();
   input.focus();
-  window.scrollTo(scrollLeft, scrollTop);
+  restoreWindowScroll();
   const caret = input.value.length;
   input.setSelectionRange(caret, caret);
   state.activeCell = { row, col };

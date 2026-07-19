@@ -355,7 +355,7 @@ button:hover {
   list-style: none;
   display: grid;
   gap: 0.4rem;
-  max-height: 60vh;
+  max-height: 60dvh;
   overflow: auto;
   padding-right: 0.35rem;
 }
@@ -719,6 +719,6 @@ select {
   }
 
   .solver-clues {
-    max-height: 40vh;
+    max-height: 40dvh;
   }
 }
