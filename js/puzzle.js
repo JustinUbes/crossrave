@@ -9,12 +9,45 @@ function parseKey(raw) {
   return { row, col };
 }
 
+function bytesToBase64Url(bytes) {
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  // Standard base64 uses "+" and "/", which either need percent-encoding in
+  // a URL or (worse) get silently misread as a space by URLSearchParams.
+  // The base64url variant (RFC 4648 §5) swaps those out and drops padding,
+  // so the result is already safe to drop straight into a URL fragment.
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function base64UrlToBytes(base64url) {
+  const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 export function encodePayload(payload) {
-  return btoa(encodeURIComponent(JSON.stringify(payload)));
+  const json = JSON.stringify(payload);
+  return bytesToBase64Url(new TextEncoder().encode(json));
 }
 
 export function decodePayload(encoded) {
-  return JSON.parse(decodeURIComponent(atob(encoded)));
+  // Current format: base64url of the raw UTF-8 JSON bytes (no
+  // encodeURIComponent step) — shorter, and immune to "+" being misread as
+  // a space. Falls back to the older btoa(encodeURIComponent(json)) format
+  // so links generated before this change keep working.
+  try {
+    const json = new TextDecoder("utf-8", { fatal: true }).decode(base64UrlToBytes(encoded));
+    return JSON.parse(json);
+  } catch {
+    return JSON.parse(decodeURIComponent(atob(encoded)));
+  }
 }
 
 export function parseEntryLines(raw) {

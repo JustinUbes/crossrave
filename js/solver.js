@@ -531,9 +531,17 @@ function clearFill() {
   drawGrid();
 }
 
+function extractPParam(fragment) {
+  // Deliberately not using URLSearchParams here: it implements
+  // application/x-www-form-urlencoded parsing, which treats "+" as a space.
+  // Encoded payloads can legitimately contain "+" (legacy links) or just be
+  // plain base64url text, so a literal split avoids silently corrupting them.
+  const match = /(?:^|&)p=([^&]*)/.exec(fragment);
+  return match ? match[1] : null;
+}
+
 function maybePuzzleFromHash() {
-  const params = new URLSearchParams(window.location.hash.slice(1));
-  const encoded = params.get("p");
+  const encoded = extractPParam(window.location.hash.slice(1));
   if (!encoded) {
     return null;
   }
@@ -569,7 +577,7 @@ function extractEncodedPayload(raw) {
   }
 
   fragment = fragment.replace(/^#/, "");
-  const fromParams = new URLSearchParams(fragment).get("p");
+  const fromParams = extractPParam(fragment);
   if (fromParams) {
     return fromParams;
   }
