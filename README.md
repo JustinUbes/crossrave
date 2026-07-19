@@ -1,9 +1,9 @@
 # Crosswordsmith
 
-Crosswordsmith is a static website skeleton for building and sharing crossword puzzles.
+Crosswordsmith is a website for building and sharing crossword puzzles.
 It runs fully in the browser with plain HTML, CSS, and JavaScript.
 
-## What This Skeleton Includes
+## What This Includes
 
 - Home page:
 - Landing page for your project
