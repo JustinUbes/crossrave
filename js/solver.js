@@ -143,7 +143,7 @@ function findClueNumberAt(row, col, direction) {
   return info || null;
 }
 
-function keepClueVisible(clueItem) {
+function scrollClueWithinList(clueItem) {
   const container = clueItem.parentElement;
   if (!container) {
     return;
@@ -211,7 +211,7 @@ function updateActiveHighlights() {
     const clueItem = state.clueItems[state.activeDirection].get(clueNumber);
     if (clueItem) {
       clueItem.classList.add("active-clue");
-      keepClueVisible(clueItem);
+      scrollClueWithinList(clueItem);
     }
   }
 }
