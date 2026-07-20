@@ -2,7 +2,7 @@
 // Keep answers letters-only for best results.
 export const FEATURED_PUZZLE_SOURCE = {
   title: "Play Ball",
-  author: "Crosswordsmith",
+  author: "Crossrave",
   options: {
     mode: "maxIntersections",
   },

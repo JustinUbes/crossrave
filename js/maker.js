@@ -1,7 +1,9 @@
 import { buildPuzzleWithReport, computeSlots, encodePayload, normalizePuzzle } from "./puzzle.js";
 
-const STORAGE_KEY = "crosswordsmith.latest";
-const DRAFTS_STORAGE_KEY = "crosswordsmith.drafts";
+const STORAGE_KEY = "crossrave.latest";
+const DRAFTS_STORAGE_KEY = "crossrave.drafts";
+const _OLD_STORAGE_KEY = "crosswordsmith.latest";
+const _OLD_DRAFTS_STORAGE_KEY = "crosswordsmith.drafts";
 
 const els = {
   title: document.getElementById("puzzle-title"),
@@ -984,6 +986,22 @@ function saveDraftsList(drafts) {
   localStorage.setItem(DRAFTS_STORAGE_KEY, JSON.stringify(drafts));
 }
 
+// Copy data saved under the old "crosswordsmith" brand keys to the new
+// "crossrave" keys so existing users don't lose their saved puzzles.
+function migrateOldBrandKeys() {
+  const oldLatest = localStorage.getItem(_OLD_STORAGE_KEY);
+  if (oldLatest && !localStorage.getItem(STORAGE_KEY)) {
+    localStorage.setItem(STORAGE_KEY, oldLatest);
+    localStorage.removeItem(_OLD_STORAGE_KEY);
+  }
+
+  const oldDrafts = localStorage.getItem(_OLD_DRAFTS_STORAGE_KEY);
+  if (oldDrafts && !localStorage.getItem(DRAFTS_STORAGE_KEY)) {
+    localStorage.setItem(DRAFTS_STORAGE_KEY, oldDrafts);
+    localStorage.removeItem(_OLD_DRAFTS_STORAGE_KEY);
+  }
+}
+
 // Older versions of the maker only supported a single overwritable draft
 // under STORAGE_KEY. Fold that into the new named-drafts list once (if any
 // exists and nothing has been saved under the new scheme yet) so upgrading
@@ -1168,6 +1186,7 @@ els.uploadInput.addEventListener("change", async (evt) => {
   }
 });
 
+migrateOldBrandKeys();
 migrateLegacyDraft();
 renderSavedDrafts();
 setRows(rowsPayload());

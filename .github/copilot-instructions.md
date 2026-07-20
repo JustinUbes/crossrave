@@ -1,4 +1,4 @@
-# Crosswordsmith Repo Instructions
+# Crossrave Repo Instructions
 
 This repository is a static GitHub Pages crossword site. Follow these rules when editing it:
 
