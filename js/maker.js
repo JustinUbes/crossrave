@@ -992,16 +992,12 @@ function migrateOldBrandKeys() {
   const oldLatest = localStorage.getItem(_OLD_STORAGE_KEY);
   if (oldLatest && !localStorage.getItem(STORAGE_KEY)) {
     localStorage.setItem(STORAGE_KEY, oldLatest);
-  }
-  if (oldLatest) {
     localStorage.removeItem(_OLD_STORAGE_KEY);
   }
 
   const oldDrafts = localStorage.getItem(_OLD_DRAFTS_STORAGE_KEY);
   if (oldDrafts && !localStorage.getItem(DRAFTS_STORAGE_KEY)) {
     localStorage.setItem(DRAFTS_STORAGE_KEY, oldDrafts);
-  }
-  if (oldDrafts) {
     localStorage.removeItem(_OLD_DRAFTS_STORAGE_KEY);
   }
 }
