@@ -1,4 +1,3 @@
-import { encodePayload } from "./puzzle.js";
 import { FEATURED_PUZZLE } from "./featured-puzzle.js";
 
 const els = {
@@ -14,5 +13,4 @@ els.author.textContent = `by ${FEATURED_PUZZLE.author}`;
 els.across.textContent = String(Object.keys(FEATURED_PUZZLE.clues.across).length);
 els.down.textContent = String(Object.keys(FEATURED_PUZZLE.clues.down).length);
 
-const encoded = encodePayload(FEATURED_PUZZLE);
-els.solveLink.href = `solver.html#p=${encoded}`;
+els.solveLink.href = "solver.html#featured=1";

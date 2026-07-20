@@ -1,4 +1,10 @@
 const ALPHABET_ONLY = /[^A-Z]/g;
+const MAX_PUZZLE_ROWS = 80;
+const MAX_PUZZLE_COLS = 80;
+const MAX_PUZZLE_CELLS = 4000;
+const MAX_TITLE_LENGTH = 120;
+const MAX_AUTHOR_LENGTH = 80;
+const MAX_CLUE_LENGTH = 220;
 
 function key(row, col) {
   return `${row},${col}`;
@@ -7,6 +13,129 @@ function key(row, col) {
 function parseKey(raw) {
   const [row, col] = raw.split(",").map(Number);
   return { row, col };
+}
+
+function isPlainObject(value) {
+  return Object.prototype.toString.call(value) === "[object Object]";
+}
+
+function sanitizeText(value, fallback, maxLength) {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const text = value.trim().slice(0, maxLength);
+  return text || fallback;
+}
+
+function normalizeLetterCell(cell) {
+  const block = Boolean(cell?.block);
+  if (block) {
+    return { block: true, solution: "" };
+  }
+
+  const solution = String(cell?.solution || "")
+    .toUpperCase()
+    .replace(ALPHABET_ONLY, "")
+    .slice(0, 1);
+
+  if (solution.length !== 1) {
+    throw new Error("Puzzle contains an invalid letter cell.");
+  }
+
+  return { block: false, solution };
+}
+
+function isOpenCellInGrid(grid, row, col) {
+  return row >= 0 && col >= 0 && row < grid.length && col < grid[row].length && !grid[row][col].block;
+}
+
+function isValidSlotStart(grid, row, col, direction) {
+  if (!isOpenCellInGrid(grid, row, col)) {
+    return false;
+  }
+
+  if (direction === "across") {
+    const leftBlocked = col === 0 || grid[row][col - 1].block;
+    const rightOpen = col + 1 < grid[row].length && !grid[row][col + 1].block;
+    return leftBlocked && rightOpen;
+  }
+
+  const topBlocked = row === 0 || grid[row - 1][col].block;
+  const bottomOpen = row + 1 < grid.length && !grid[row + 1][col].block;
+  return topBlocked && bottomOpen;
+}
+
+function buildSlotStarts(grid, rows, cols) {
+  const slots = computeSlots(grid, rows, cols);
+  return {
+    across: slots.across.map((slot) => ({ number: slot.number, row: slot.row, col: slot.col })),
+    down: slots.down.map((slot) => ({ number: slot.number, row: slot.row, col: slot.col })),
+  };
+}
+
+function normalizeClueStarts(rawClueStarts, grid, rows, cols) {
+  if (!isPlainObject(rawClueStarts)) {
+    return buildSlotStarts(grid, rows, cols);
+  }
+
+  const normalized = {
+    across: Array.isArray(rawClueStarts.across) ? rawClueStarts.across : null,
+    down: Array.isArray(rawClueStarts.down) ? rawClueStarts.down : null,
+  };
+
+  if (!normalized.across || !normalized.down) {
+    return buildSlotStarts(grid, rows, cols);
+  }
+
+  const startsByNumber = new Map();
+  const result = { across: [], down: [] };
+
+  ["across", "down"].forEach((direction) => {
+    normalized[direction].forEach((entry) => {
+      const number = entry?.number;
+      const row = entry?.row;
+      const col = entry?.col;
+
+      if (!Number.isInteger(number) || number < 1 || !Number.isInteger(row) || !Number.isInteger(col)) {
+        throw new Error("Puzzle contains invalid clue numbering.");
+      }
+
+      if (row < 0 || col < 0 || row >= rows || col >= cols || !isValidSlotStart(grid, row, col, direction)) {
+        throw new Error("Puzzle contains invalid clue start positions.");
+      }
+
+      const existing = startsByNumber.get(number);
+      if (existing && (existing.row !== row || existing.col !== col)) {
+        throw new Error("Puzzle clue numbering is inconsistent.");
+      }
+
+      startsByNumber.set(number, { row, col });
+      result[direction].push({ number, row, col });
+    });
+
+    result[direction].sort((a, b) => a.number - b.number);
+  });
+
+  if (result.across.length === 0 && result.down.length === 0) {
+    return buildSlotStarts(grid, rows, cols);
+  }
+
+  return result;
+}
+
+function normalizeClues(rawClues, clueStarts) {
+  const source = isPlainObject(rawClues) ? rawClues : {};
+  const normalized = { across: {}, down: {} };
+
+  ["across", "down"].forEach((direction) => {
+    const sourceDirection = isPlainObject(source[direction]) ? source[direction] : {};
+    clueStarts[direction].forEach((start) => {
+      normalized[direction][start.number] = sanitizeText(sourceDirection[start.number], "(clue not set)", MAX_CLUE_LENGTH);
+    });
+  });
+
+  return normalized;
 }
 
 function bytesToBase64Url(bytes) {
@@ -48,6 +177,51 @@ export function decodePayload(encoded) {
   } catch {
     return JSON.parse(decodeURIComponent(atob(encoded)));
   }
+}
+
+export function normalizePuzzle(rawPuzzle) {
+  if (!isPlainObject(rawPuzzle)) {
+    throw new Error("Puzzle payload must be an object.");
+  }
+
+  const rows = rawPuzzle.rows;
+  const cols = rawPuzzle.cols;
+  if (!Number.isInteger(rows) || !Number.isInteger(cols) || rows < 1 || cols < 1) {
+    throw new Error("Puzzle dimensions are invalid.");
+  }
+
+  if (rows > MAX_PUZZLE_ROWS || cols > MAX_PUZZLE_COLS || rows * cols > MAX_PUZZLE_CELLS) {
+    throw new Error("Puzzle is too large to open safely in the browser.");
+  }
+
+  if (!Array.isArray(rawPuzzle.grid) || rawPuzzle.grid.length !== rows) {
+    throw new Error("Puzzle grid shape is invalid.");
+  }
+
+  const grid = rawPuzzle.grid.map((row) => {
+    if (!Array.isArray(row) || row.length !== cols) {
+      throw new Error("Puzzle grid shape is invalid.");
+    }
+
+    return row.map((cell) => normalizeLetterCell(cell));
+  });
+
+  const hasOpenCell = grid.some((row) => row.some((cell) => !cell.block));
+  if (!hasOpenCell) {
+    throw new Error("Puzzle must contain at least one open cell.");
+  }
+
+  const clueStarts = normalizeClueStarts(rawPuzzle.clueStarts, grid, rows, cols);
+
+  return {
+    title: sanitizeText(rawPuzzle.title, "Untitled Puzzle", MAX_TITLE_LENGTH),
+    author: sanitizeText(rawPuzzle.author, "unknown", MAX_AUTHOR_LENGTH),
+    rows,
+    cols,
+    grid,
+    clueStarts,
+    clues: normalizeClues(rawPuzzle.clues, clueStarts),
+  };
 }
 
 export function parseEntryLines(raw) {

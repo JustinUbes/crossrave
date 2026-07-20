@@ -1,4 +1,4 @@
-import { buildPuzzleWithReport, computeSlots, encodePayload } from "./puzzle.js";
+import { buildPuzzleWithReport, computeSlots, encodePayload, normalizePuzzle } from "./puzzle.js";
 
 const STORAGE_KEY = "crosswordsmith.latest";
 const DRAFTS_STORAGE_KEY = "crosswordsmith.drafts";
@@ -44,6 +44,42 @@ const els = {
 const state = {
   puzzle: null,
 };
+
+function sanitizeDraftText(value, maxLength) {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  return value.trim().slice(0, maxLength);
+}
+
+function normalizeDraftRows(rows) {
+  if (!Array.isArray(rows)) {
+    return [];
+  }
+
+  return rows.slice(0, 250).map((entry) => ({
+    answer: String(entry?.answer || "")
+      .toUpperCase()
+      .replace(/[^A-Z]/g, "")
+      .slice(0, 32),
+    clue: sanitizeDraftText(entry?.clue, 180),
+  }));
+}
+
+function normalizeDraftPayload(parsed) {
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("Draft payload must be an object.");
+  }
+
+  return {
+    title: sanitizeDraftText(parsed.title, 120),
+    author: sanitizeDraftText(parsed.author, 80),
+    generationMode: parsed.generationMode === "maxIntersections" ? "maxIntersections" : "compactness",
+    entryRows: normalizeDraftRows(parsed.entryRows),
+    puzzle: parsed.puzzle ? normalizePuzzle(parsed.puzzle) : null,
+  };
+}
 
 // The manual grid is an unbounded sheet of graph paper: cells live in a sparse
 // Map keyed by absolute "row,col" coordinates (which may be negative), and the
@@ -915,11 +951,13 @@ els.manualBuildBtn.addEventListener("click", () => {
 });
 
 function applyPayload(parsed) {
-  els.title.value = parsed.title || "";
-  els.author.value = parsed.author || "";
-  els.generationMode.value = parsed.generationMode || "compactness";
-  setRows(parsed.entryRows || []);
-  state.puzzle = parsed.puzzle || null;
+  const normalized = normalizeDraftPayload(parsed);
+
+  els.title.value = normalized.title;
+  els.author.value = normalized.author;
+  els.generationMode.value = normalized.generationMode;
+  setRows(normalized.entryRows);
+  state.puzzle = normalized.puzzle;
   if (state.puzzle) {
     renderPuzzle(state.puzzle);
     setMessage("Loaded puzzle draft.");

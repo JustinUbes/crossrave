@@ -1,3 +1,4 @@
+import { FEATURED_PUZZLE } from "./featured-puzzle.js";
 import { decodePayload } from "./puzzle.js";
 
 function key(row, col) {
@@ -644,10 +645,15 @@ function extractPParam(fragment) {
   return match ? match[1] : null;
 }
 
+function hasFeaturedParam(fragment) {
+  return /(?:^|&)featured=1(?:&|$)/.test(fragment);
+}
+
 function maybePuzzleFromHash() {
-  const encoded = extractPParam(window.location.hash.slice(1));
+  const fragment = window.location.hash.slice(1);
+  const encoded = extractPParam(fragment);
   if (!encoded) {
-    return null;
+    return hasFeaturedParam(fragment) ? FEATURED_PUZZLE : null;
   }
 
   try {
