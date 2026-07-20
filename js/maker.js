@@ -1,7 +1,7 @@
 import { buildPuzzleWithReport, computeSlots, encodePayload, normalizePuzzle } from "./puzzle.js";
 
-const STORAGE_KEY = "crosswordsmith.latest";
-const DRAFTS_STORAGE_KEY = "crosswordsmith.drafts";
+const STORAGE_KEY = "crossrave.latest";
+const DRAFTS_STORAGE_KEY = "crossrave.drafts";
 
 const els = {
   title: document.getElementById("puzzle-title"),
