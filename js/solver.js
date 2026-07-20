@@ -143,6 +143,35 @@ function findClueNumberAt(row, col, direction) {
   return info || null;
 }
 
+function scrollClueWithinList(clueItem) {
+  const container = clueItem.parentElement;
+  if (!container) {
+    return;
+  }
+
+  const itemTop = clueItem.offsetTop;
+  const itemBottom = itemTop + clueItem.offsetHeight;
+  const viewTop = container.scrollTop;
+  const viewBottom = viewTop + container.clientHeight;
+
+  if (itemTop < viewTop) {
+    container.scrollTop = itemTop;
+    return;
+  }
+
+  if (itemBottom > viewBottom) {
+    container.scrollTop = itemBottom - container.clientHeight;
+  }
+}
+
+function captureWindowScroll() {
+  const scrollLeft = window.scrollX;
+  const scrollTop = window.scrollY;
+  return () => {
+    window.scrollTo(scrollLeft, scrollTop);
+  };
+}
+
 function updateActiveHighlights() {
   state.cellsByCoord.forEach((cellEl) => {
     cellEl.classList.remove("active-word", "active-cell");
@@ -190,7 +219,7 @@ function updateActiveHighlights() {
     const clueItem = state.clueItems[state.activeDirection].get(clueNumber);
     if (clueItem) {
       clueItem.classList.add("active-clue");
-      clueItem.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+      scrollClueWithinList(clueItem);
     }
   }
 }
@@ -205,8 +234,10 @@ function focusClue(number, direction) {
     return;
   }
 
+  const restoreWindowScroll = captureWindowScroll();
   state.activeDirection = direction;
   focusCell(start.row, start.col);
+  requestAnimationFrame(restoreWindowScroll);
 }
 
 function findCurrentClueIndex(row, col, direction) {
@@ -224,7 +255,9 @@ function focusCell(row, col) {
     return;
   }
 
+  const restoreWindowScroll = captureWindowScroll();
   input.focus();
+  requestAnimationFrame(restoreWindowScroll);
   const caret = input.value.length;
   input.setSelectionRange(caret, caret);
   state.activeCell = { row, col };
@@ -346,7 +379,7 @@ function drawGrid() {
   const map = state.nav.numberByStart;
 
   els.grid.innerHTML = "";
-  els.grid.style.gridTemplateColumns = `repeat(${puzzle.cols}, 36px)`;
+  els.grid.style.gridTemplateColumns = `repeat(${puzzle.cols}, var(--cell-size))`;
   state.inputsByCoord = new Map();
   state.cellsByCoord = new Map();
 
