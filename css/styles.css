@@ -184,6 +184,7 @@ button:hover {
   padding: 0.7rem;
   background: #fffefa;
   overscroll-behavior-x: contain;
+  min-width: 0;
 }
 
 .hidden {
@@ -191,7 +192,7 @@ button:hover {
 }
 
 .crossword-grid {
-  --cell-size: 32px;
+  --cell-size: var(--solver-cell-size, 32px);
   display: grid;
   gap: 2px;
   width: fit-content;
@@ -222,9 +223,9 @@ button:hover {
 
 .cell-num {
   position: absolute;
-  top: 2px;
-  left: 3px;
-  font-size: 0.58rem;
+  top: max(1px, calc(var(--cell-size) * 0.06));
+  left: max(2px, calc(var(--cell-size) * 0.09));
+  font-size: clamp(0.42rem, calc(var(--cell-size) * 0.18), 0.58rem);
   color: #5c4d41;
   user-select: none;
 }
@@ -237,7 +238,7 @@ button:hover {
   text-align: center;
   text-transform: uppercase;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: clamp(0.72rem, calc(var(--cell-size) * 0.5), 1rem);
   background: transparent;
   padding: 0;
 }
@@ -382,6 +383,39 @@ button:hover {
   gap: 1rem;
   align-items: start;
   grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
+}
+
+.solver-board-toolbar {
+  grid-column: 1 / 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.solver-board-label {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.solver-zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.solver-zoom-controls button {
+  min-width: 3rem;
+}
+
+.zoom-level {
+  min-width: 4ch;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: right;
 }
 
 .solver-scroll-hint {
@@ -702,6 +736,10 @@ select {
     --cell-size: 30px;
   }
 
+  .solver-board-toolbar {
+    align-items: start;
+  }
+
   .entry-row {
     grid-template-columns: 1fr;
   }
@@ -713,6 +751,7 @@ select {
   }
 
   .solver-panel .board-wrap,
+  .solver-board-toolbar,
   .solver-scroll-hint,
   .clues-grid {
     grid-column: auto;

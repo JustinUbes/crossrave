@@ -49,10 +49,19 @@
       </section>
 
       <section id="solver-panel" class="panel hidden solver-panel">
+        <div class="solver-board-toolbar" aria-label="Puzzle zoom controls">
+          <span class="solver-board-label">Puzzle zoom</span>
+          <div class="solver-zoom-controls">
+            <button id="zoom-out-btn" type="button" class="secondary-btn" disabled aria-label="Zoom out">-</button>
+            <button id="zoom-fit-btn" type="button" class="secondary-btn" disabled>Fit</button>
+            <button id="zoom-in-btn" type="button" class="secondary-btn" disabled aria-label="Zoom in">+</button>
+            <output id="zoom-level" class="zoom-level" for="zoom-out-btn zoom-fit-btn zoom-in-btn">100%</output>
+          </div>
+        </div>
         <div class="board-wrap">
           <div id="solver-grid" class="crossword-grid" role="grid" aria-label="Crossword solver grid"></div>
         </div>
-        <p class="solver-scroll-hint">Wide puzzle? Scroll inside the grid area to see the full board.</p>
+        <p class="solver-scroll-hint">The puzzle fits this panel by default. Use zoom if you want a closer view.</p>
 
         <div class="clues-grid">
           <section class="solver-clue-section">

@@ -8,16 +8,29 @@ const els = {
   title: document.getElementById("solver-title"),
   author: document.getElementById("solver-author"),
   panel: document.getElementById("solver-panel"),
+  boardWrap: document.querySelector("#solver-panel .board-wrap"),
   grid: document.getElementById("solver-grid"),
   across: document.getElementById("across-clues"),
   down: document.getElementById("down-clues"),
   checkBtn: document.getElementById("check-btn"),
   revealBtn: document.getElementById("reveal-btn"),
   resetBtn: document.getElementById("reset-btn"),
+  zoomOutBtn: document.getElementById("zoom-out-btn"),
+  zoomFitBtn: document.getElementById("zoom-fit-btn"),
+  zoomInBtn: document.getElementById("zoom-in-btn"),
+  zoomLevel: document.getElementById("zoom-level"),
   loadLinkInput: document.getElementById("load-link-input"),
   loadLinkBtn: document.getElementById("load-link-btn"),
   loadLinkMessage: document.getElementById("load-link-message"),
 };
+
+const BASE_CELL_SIZE = 32;
+const CELL_GAP = 2;
+const MIN_CELL_SIZE = 14;
+const MAX_CELL_SIZE = 64;
+const MIN_ZOOM = 0.7;
+const MAX_ZOOM = 2.4;
+const ZOOM_STEP = 0.15;
 
 const state = {
   puzzle: null,
@@ -32,7 +45,62 @@ const state = {
     down: new Map(),
   },
   pendingMouseCell: null,
+  fitCellSize: BASE_CELL_SIZE,
+  zoom: 1,
 };
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function updateZoomControls() {
+  const hasPuzzle = Boolean(state.puzzle);
+  els.zoomOutBtn.disabled = !hasPuzzle || state.zoom <= MIN_ZOOM;
+  els.zoomFitBtn.disabled = !hasPuzzle;
+  els.zoomInBtn.disabled = !hasPuzzle || state.zoom >= MAX_ZOOM;
+
+  if (!hasPuzzle) {
+    els.zoomLevel.textContent = "100%";
+    return;
+  }
+
+  els.zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
+}
+
+function computeFitCellSize() {
+  if (!state.puzzle || !els.boardWrap) {
+    return BASE_CELL_SIZE;
+  }
+
+  const wrapStyle = getComputedStyle(els.boardWrap);
+  const horizontalPadding = parseFloat(wrapStyle.paddingLeft) + parseFloat(wrapStyle.paddingRight);
+  const verticalPadding = parseFloat(wrapStyle.paddingTop) + parseFloat(wrapStyle.paddingBottom);
+  const availableWidth = Math.max(0, els.boardWrap.clientWidth - horizontalPadding);
+  const bounds = els.boardWrap.getBoundingClientRect();
+  const visibleHeight = Math.max(0, window.innerHeight - bounds.top - 32 - verticalPadding);
+  const availableHeight = Math.max(480, visibleHeight);
+
+  const widthCell = (availableWidth - CELL_GAP * (state.puzzle.cols - 1)) / state.puzzle.cols;
+  const heightCell = (availableHeight - CELL_GAP * (state.puzzle.rows - 1)) / state.puzzle.rows;
+  return clamp(Math.floor(Math.min(BASE_CELL_SIZE, widthCell, heightCell)), MIN_CELL_SIZE, BASE_CELL_SIZE);
+}
+
+function applyGridZoom() {
+  if (!state.puzzle) {
+    updateZoomControls();
+    return;
+  }
+
+  state.fitCellSize = computeFitCellSize();
+  const cellSize = clamp(Math.round(state.fitCellSize * state.zoom), MIN_CELL_SIZE, MAX_CELL_SIZE);
+  els.grid.style.setProperty("--solver-cell-size", `${cellSize}px`);
+  updateZoomControls();
+}
+
+function setZoom(nextZoom) {
+  state.zoom = clamp(nextZoom, MIN_ZOOM, MAX_ZOOM);
+  applyGridZoom();
+}
 
 function buildNavigationData(puzzle) {
   const numberByStart = new Map();
@@ -498,6 +566,8 @@ function drawGrid() {
       els.grid.appendChild(cellEl);
     }
   }
+
+  applyGridZoom();
 }
 
 function setPuzzle(puzzle) {
@@ -506,6 +576,7 @@ function setPuzzle(puzzle) {
   state.nav = buildNavigationData(puzzle);
   state.activeDirection = "across";
   state.activeCell = null;
+  state.zoom = 1;
 
   els.title.textContent = puzzle.title || "Untitled Puzzle";
   els.author.textContent = `by ${puzzle.author || "unknown"}`;
@@ -641,6 +712,9 @@ function loadPuzzleFromLinkInput() {
 els.checkBtn.addEventListener("click", checkPuzzle);
 els.revealBtn.addEventListener("click", revealPuzzle);
 els.resetBtn.addEventListener("click", clearFill);
+els.zoomOutBtn.addEventListener("click", () => setZoom(state.zoom - ZOOM_STEP));
+els.zoomFitBtn.addEventListener("click", () => setZoom(1));
+els.zoomInBtn.addEventListener("click", () => setZoom(state.zoom + ZOOM_STEP));
 els.loadLinkBtn.addEventListener("click", loadPuzzleFromLinkInput);
 els.loadLinkInput.addEventListener("keydown", (evt) => {
   if (evt.key === "Enter") {
@@ -648,6 +722,17 @@ els.loadLinkInput.addEventListener("keydown", (evt) => {
     loadPuzzleFromLinkInput();
   }
 });
+
+window.addEventListener("resize", applyGridZoom);
+
+if (typeof ResizeObserver === "function" && els.boardWrap) {
+  const boardResizeObserver = new ResizeObserver(() => {
+    applyGridZoom();
+  });
+  boardResizeObserver.observe(els.boardWrap);
+}
+
+updateZoomControls();
 
 const incoming = maybePuzzleFromHash();
 if (incoming) {
