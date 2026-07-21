@@ -400,17 +400,28 @@ function isAtWordStart(row, col, direction) {
   return start.row === row && start.col === col;
 }
 
-function handleCellFocus(row, col) {
-  const clickedSameCell =
-    state.pendingMouseCell && state.pendingMouseCell.row === row && state.pendingMouseCell.col === col;
-  const wasSameActive = state.activeCell && state.activeCell.row === row && state.activeCell.col === col;
-
-  if (clickedSameCell && wasSameActive) {
-    state.activeDirection = state.activeDirection === "across" ? "down" : "across";
+function hasWordAt(row, col, direction) {
+  const number = findClueNumberAt(row, col, direction);
+  if (number === null) {
+    return false;
   }
 
+  const start = state.nav.startsByNumber.get(number);
+  return Boolean(start && start[direction]);
+}
+
+function toggleDirectionAt(row, col) {
+  const nextDirection = state.activeDirection === "across" ? "down" : "across";
+  if (!hasWordAt(row, col, nextDirection)) {
+    return;
+  }
+
+  state.activeDirection = nextDirection;
+  updateActiveHighlights();
+}
+
+function handleCellFocus(row, col) {
   state.activeCell = { row, col };
-  state.pendingMouseCell = null;
   updateActiveHighlights();
 }
 
@@ -476,7 +487,11 @@ function drawGrid() {
         state.inputsByCoord.set(key(row, col), input);
 
         input.addEventListener("mousedown", () => {
-          state.pendingMouseCell = { row, col };
+          state.pendingMouseCell = {
+            row,
+            col,
+            wasFocused: document.activeElement === input,
+          };
         });
 
         input.addEventListener("focus", () => {
@@ -486,6 +501,11 @@ function drawGrid() {
         });
 
         input.addEventListener("click", () => {
+          const pending = state.pendingMouseCell;
+          state.pendingMouseCell = null;
+          if (pending && pending.row === row && pending.col === col && pending.wasFocused) {
+            toggleDirectionAt(row, col);
+          }
           const caret = input.value.length;
           input.setSelectionRange(caret, caret);
         });
