@@ -1,13 +1,14 @@
 # Crossrave
 
-Crossrave is a website for building and sharing crossword puzzles.
-It runs fully in the browser with plain HTML, CSS, and JavaScript.
+Crossrave is a website for building, sharing, and solving crossword puzzles,
+live at [crossrave.com](https://crossrave.com). It runs fully in the browser
+with plain HTML, CSS, and JavaScript — no accounts, no server, no build step.
 
-## What This Includes
+## Features
 
 - Home page:
-- Landing page for your project
-- Shows a featured puzzle entry point for everyone to solve
+- Landing page for the site
+- Shows a featured daily puzzle entry point for everyone to solve
 - Featured puzzle can be pinned by editing one file
 - Maker page:
 - Automatic mode: row-based clue/answer entry UI
@@ -27,16 +28,22 @@ It runs fully in the browser with plain HTML, CSS, and JavaScript.
     squares automatically when building, so odd-shaped layouts (crosses,
     plusses, etc.) don't need every corner blocked out by hand
 - Solver page:
-- Loads a puzzle from a hash payload (`#p=...`) or from a pasted solver link
+- Loads a puzzle from a hash payload (`#p=...`), a pasted solver link, or the
+  featured puzzle (`#featured=1`)
 - Shows no crossword grid until a puzzle is loaded
+- Newspaper-style navigation: click-to-toggle across/down, keyboard-driven
+  fill, clue list synced with the active cell
 - Lets players fill, check, reveal, and reset
+- Responsive grid sizing with scroll handling for large puzzles
 - Share system with no server:
 - Encodes puzzle data into a URL hash for link-based sharing
 - One-click Copy Link button next to the generated solver URL
 - Browser local save/load:
 - Save named drafts in `localStorage` (list with per-draft Load/Delete)
 - Download the current draft as a `.json` file, or upload one back in
-- No accounts, no cookies, no server-side storage — see "How Data Is Stored" below
+- `crossrave`-prefixed storage keys, with automatic migration from keys saved
+  under the project's earlier names
+- No accounts, no cookies, no server-side storage
 
 ## Project Structure
 
@@ -50,8 +57,13 @@ It runs fully in the browser with plain HTML, CSS, and JavaScript.
 - `js/home.js` home page behavior
 - `js/featured-puzzle-source.js` single source file to edit the pinned home puzzle
 - `js/featured-puzzle.js` builds the featured puzzle from source data
+- `CNAME` custom domain configuration (crossrave.com)
 - `.nojekyll` ensures smooth GitHub Pages static file handling
 - `.github/CODEOWNERS` default reviewers for pull requests
+- `.github/copilot-instructions.md` repository-wide guidance for AI-assisted edits
+- `.github/agents/` workspace agents for development, puzzle making,
+  playtesting, and issue-driven planning (indexed in `.github/AGENTS.md`)
+- `.github/skills/github-connect/` skill for GitHub Issue/PR work via the `gh` CLI
 
 ## Pinned Featured Puzzle Workflow
 
@@ -73,15 +85,13 @@ python -m http.server 8000
 
 Then open `http://localhost:8000`.
 
-## Deploy To GitHub Pages
+## Deployment
 
-1. Push this repository to your GitHub account.
-2. In GitHub, go to repository settings.
-3. Open Pages settings.
-4. Set source to deploy from your default branch and root folder (`/`).
-5. Save and wait for deployment.
+The site is deployed with GitHub Pages from the default branch root (`/`) and
+served at the custom domain [crossrave.com](https://crossrave.com) via the
+`CNAME` file. Pushing to `main` publishes automatically.
 
-The app uses relative asset paths, so it works for both:
+The app uses relative asset paths, so it also works without the custom domain:
 
 - User/organization pages (`https://username.github.io`)
 - Project pages (`https://username.github.io/repo-name`)
