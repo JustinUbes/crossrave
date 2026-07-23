@@ -19,6 +19,7 @@ This repository is Crossrave, a static GitHub Pages crossword site served at cro
 
 - Workspace agents are defined in `.github/agents/` and indexed in `AGENTS.md`:
   - `crossword-owner` — product owner/orchestrator; triages GitHub Issues and delegates to the other agents.
+  - `crossword-scrum` — scrum master; turns feature ideas into well-formed GitHub Issues via the `github-connect` skill.
   - `crossword-dev` — front-end development, accessibility, responsiveness, and UX polish.
   - `Crossword Maker` — puzzle creation, clue writing, difficulty tuning, grid quality.
   - `crossword-user` — everyday-solver persona for playtesting and usability feedback.
