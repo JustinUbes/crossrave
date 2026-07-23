@@ -16,6 +16,16 @@ const els = {
   checkBtn: document.getElementById("check-btn"),
   revealBtn: document.getElementById("reveal-btn"),
   resetBtn: document.getElementById("reset-btn"),
+  printBtn: document.getElementById("print-btn"),
+  timer: document.getElementById("solve-timer"),
+  pauseBtn: document.getElementById("pause-btn"),
+  pauseOverlay: document.getElementById("pause-overlay"),
+  resumeBtn: document.getElementById("resume-btn"),
+  completionDialog: document.getElementById("completion-dialog"),
+  completionTitle: document.getElementById("completion-title"),
+  completionMessage: document.getElementById("completion-message"),
+  completionTime: document.getElementById("completion-time"),
+  completionCloseBtn: document.getElementById("completion-close-btn"),
   zoomOutBtn: document.getElementById("zoom-out-btn"),
   zoomFitBtn: document.getElementById("zoom-fit-btn"),
   zoomInBtn: document.getElementById("zoom-in-btn"),
@@ -48,7 +58,123 @@ const state = {
   pendingMouseCell: null,
   fitCellSize: BASE_CELL_SIZE,
   zoom: 1,
+  timerStart: 0,
+  timerElapsedMs: 0,
+  timerIntervalId: null,
+  paused: false,
+  revealUsed: false,
+  completed: false,
 };
+
+// --- Solve timer -----------------------------------------------------------
+
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const two = (n) => String(n).padStart(2, "0");
+  return hours > 0 ? `${hours}:${two(minutes)}:${two(seconds)}` : `${minutes}:${two(seconds)}`;
+}
+
+function currentElapsedMs() {
+  const running = state.timerIntervalId !== null ? Date.now() - state.timerStart : 0;
+  return state.timerElapsedMs + running;
+}
+
+function renderTimer() {
+  els.timer.textContent = formatTime(currentElapsedMs());
+}
+
+function stopTimerInterval() {
+  if (state.timerIntervalId !== null) {
+    clearInterval(state.timerIntervalId);
+    state.timerElapsedMs += Date.now() - state.timerStart;
+    state.timerIntervalId = null;
+  }
+}
+
+function startTimerInterval() {
+  if (state.timerIntervalId !== null || state.completed) {
+    return;
+  }
+  state.timerStart = Date.now();
+  state.timerIntervalId = setInterval(renderTimer, 500);
+  renderTimer();
+}
+
+function resetTimer() {
+  stopTimerInterval();
+  state.timerElapsedMs = 0;
+  renderTimer();
+  startTimerInterval();
+}
+
+function setPaused(paused) {
+  if (!state.puzzle || state.paused === paused) {
+    return;
+  }
+
+  state.paused = paused;
+  els.pauseOverlay.classList.toggle("hidden", !paused);
+  els.grid.classList.toggle("grid-paused", paused);
+  els.pauseBtn.textContent = paused ? "Resume" : "Pause";
+
+  if (paused) {
+    stopTimerInterval();
+    if (document.activeElement && els.grid.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+    els.resumeBtn.focus();
+  } else {
+    startTimerInterval();
+    if (state.activeCell) {
+      focusCell(state.activeCell.row, state.activeCell.col);
+    }
+  }
+}
+
+// --- Completion ------------------------------------------------------------
+
+function isPuzzleSolved() {
+  for (let row = 0; row < state.puzzle.rows; row += 1) {
+    for (let col = 0; col < state.puzzle.cols; col += 1) {
+      const cell = state.puzzle.grid[row][col];
+      if (!cell.block && state.fill[row][col] !== cell.solution) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function showCompletion() {
+  stopTimerInterval();
+  state.completed = true;
+  els.pauseBtn.disabled = true;
+  renderTimer();
+
+  if (state.revealUsed) {
+    els.completionTitle.textContent = "Puzzle Complete";
+    els.completionMessage.textContent =
+      "You got there with a little help from Reveal. Every finished grid still counts!";
+  } else {
+    els.completionTitle.textContent = "Congratulations!";
+    els.completionMessage.textContent = "You solved the whole puzzle on your own. Nicely done!";
+  }
+
+  els.completionTime.textContent = formatTime(state.timerElapsedMs);
+  if (typeof els.completionDialog.showModal === "function") {
+    els.completionDialog.showModal();
+  }
+}
+
+function maybeComplete() {
+  if (state.completed || !state.puzzle || !isPuzzleSolved()) {
+    return;
+  }
+  showCompletion();
+}
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -460,6 +586,8 @@ function drawGrid() {
 
   els.grid.innerHTML = "";
   els.grid.style.gridTemplateColumns = `repeat(${puzzle.cols}, var(--cell-size))`;
+  els.grid.style.setProperty("--grid-cols", String(puzzle.cols));
+  els.grid.style.setProperty("--grid-rows", String(puzzle.rows));
   state.inputsByCoord = new Map();
   state.cellsByCoord = new Map();
 
@@ -578,6 +706,7 @@ function drawGrid() {
             return;
           }
 
+          maybeComplete();
           moveForwardFrom(row, col, state.activeDirection);
         });
 
@@ -598,6 +727,12 @@ function setPuzzle(puzzle) {
   state.activeDirection = "across";
   state.activeCell = null;
   state.zoom = 1;
+  state.revealUsed = false;
+  state.completed = false;
+  state.paused = false;
+  els.pauseOverlay.classList.add("hidden");
+  els.grid.classList.remove("grid-paused");
+  els.pauseBtn.textContent = "Pause";
 
   els.title.textContent = puzzle.title || "Untitled Puzzle";
   els.author.textContent = `by ${puzzle.author || "unknown"}`;
@@ -605,6 +740,10 @@ function setPuzzle(puzzle) {
   els.checkBtn.disabled = false;
   els.revealBtn.disabled = false;
   els.resetBtn.disabled = false;
+  els.printBtn.disabled = false;
+  els.pauseBtn.disabled = false;
+
+  resetTimer();
 
   drawGrid();
   drawClues();
@@ -634,11 +773,12 @@ function checkPuzzle() {
   });
 
   if (solved) {
-    alert("Puzzle solved.");
+    maybeComplete();
   }
 }
 
 function revealPuzzle() {
+  state.revealUsed = true;
   const inputs = els.grid.querySelectorAll("input");
   inputs.forEach((input) => {
     const row = Number(input.dataset.row);
@@ -649,11 +789,18 @@ function revealPuzzle() {
     input.classList.add("good");
     state.fill[row][col] = answer;
   });
+
+  maybeComplete();
 }
 
 function clearFill() {
   state.fill = state.puzzle.grid.map((row) => row.map((cell) => (cell.block ? "#" : "")));
+  state.revealUsed = false;
+  state.completed = false;
+  els.pauseBtn.disabled = false;
+  setPaused(false);
   drawGrid();
+  resetTimer();
 }
 
 function extractPParam(fragment) {
@@ -738,6 +885,10 @@ function loadPuzzleFromLinkInput() {
 els.checkBtn.addEventListener("click", checkPuzzle);
 els.revealBtn.addEventListener("click", revealPuzzle);
 els.resetBtn.addEventListener("click", clearFill);
+els.printBtn.addEventListener("click", () => window.print());
+els.pauseBtn.addEventListener("click", () => setPaused(!state.paused));
+els.resumeBtn.addEventListener("click", () => setPaused(false));
+els.completionCloseBtn.addEventListener("click", () => els.completionDialog.close());
 els.zoomOutBtn.addEventListener("click", () => setZoom(state.zoom - ZOOM_STEP));
 els.zoomFitBtn.addEventListener("click", () => setZoom(1));
 els.zoomInBtn.addEventListener("click", () => setZoom(state.zoom + ZOOM_STEP));

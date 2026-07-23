@@ -17,6 +17,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/styles.css" />
+    <script src="js/theme-init.js"></script>
   </head>
   <body>
     <div class="bg-orb orb-a"></div>
@@ -50,12 +51,16 @@
           <button id="check-btn" type="button" disabled>Check Fill</button>
           <button id="reveal-btn" type="button" disabled>Reveal Puzzle</button>
           <button id="reset-btn" type="button" disabled>Clear Fill</button>
+          <button id="print-btn" type="button" class="secondary-btn" disabled>Print</button>
         </div>
       </section>
 
       <section id="solver-panel" class="panel hidden solver-panel">
-        <div class="solver-board-toolbar" aria-label="Puzzle zoom controls">
-          <span class="solver-board-label">Puzzle zoom</span>
+        <div class="solver-board-toolbar" aria-label="Puzzle zoom and timer controls">
+          <div class="solver-timer-controls">
+            <output id="solve-timer" class="solve-timer" aria-label="Solve time">0:00</output>
+            <button id="pause-btn" type="button" class="secondary-btn" disabled>Pause</button>
+          </div>
           <div class="solver-zoom-controls">
             <button id="zoom-out-btn" type="button" class="secondary-btn" disabled aria-label="Zoom out">-</button>
             <button id="zoom-fit-btn" type="button" class="secondary-btn" disabled>Fit</button>
@@ -65,6 +70,10 @@
         </div>
         <div class="board-wrap">
           <div id="solver-grid" class="crossword-grid" role="grid" aria-label="Crossword solver grid"></div>
+          <div id="pause-overlay" class="pause-overlay hidden">
+            <p>Puzzle paused</p>
+            <button id="resume-btn" type="button">Resume</button>
+          </div>
         </div>
         <p class="solver-scroll-hint">The puzzle fits this panel by default. Use zoom if you want a closer view.</p>
 
@@ -81,10 +90,20 @@
       </section>
     </main>
 
+    <dialog id="completion-dialog" class="site-dialog" aria-labelledby="completion-title">
+      <h2 id="completion-title">Congratulations!</h2>
+      <p id="completion-message">You solved the puzzle.</p>
+      <p>Your time: <strong id="completion-time">0:00</strong></p>
+      <div class="dialog-actions">
+        <button id="completion-close-btn" type="button" class="dialog-close-btn">Close</button>
+      </div>
+    </dialog>
+
     <footer class="site-footer">
       <small>Static app for GitHub Pages. No server required.</small>
     </footer>
 
     <script type="module" src="js/solver.js"></script>
+    <script type="module" src="js/site.js"></script>
   </body>
 </html>

@@ -1,7 +1,11 @@
 :root {
+  color-scheme: light;
   --bg: #f8f3e8;
+  --bg-grad-a: #fff8df;
+  --bg-grad-b: #efe5d4;
   --paper: #fffdf7;
   --ink: #181310;
+  --on-ink: #ffffff;
   --muted: #6a5c53;
   --accent: #d9421b;
   --accent-soft: #ff8f6d;
@@ -9,6 +13,69 @@
   --good: #2a7e3f;
   --bad: #a42020;
   --black: #12100f;
+  --black-border: #000000;
+  --orb-a: #ffd57b;
+  --orb-b: #ff9f85;
+  --nav-bg: rgba(255, 255, 255, 0.5);
+  --panel-bg: color-mix(in srgb, var(--paper), #ffffff 50%);
+  --field-bg: #fffdf9;
+  --surface-2: #fffefa;
+  --surface-3: #fffaf3;
+  --secondary-bg: #f2e5d7;
+  --pill-bg: rgba(255, 255, 255, 0.7);
+  --cell-bg: #ffffff;
+  --cell-border: #dacbbb;
+  --cell-num: #5c4d41;
+  --cell-active-word: #f6efd9;
+  --cell-active-cell: #e7d7b4;
+  --cell-active-border: #be9d6d;
+  --focus-ring: #d7b784;
+  --clue-active-bg: #f5ecd8;
+  --clue-active-ink: #2f2418;
+  --clue-hover-bg: #f7f0de;
+  --overlay-backdrop: rgba(24, 19, 16, 0.45);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #17130f;
+  --bg-grad-a: #221b13;
+  --bg-grad-b: #120e0a;
+  --paper: #1e1913;
+  --ink: #f0e9df;
+  --on-ink: #17130f;
+  --muted: #b5a795;
+  --accent: #ff7a52;
+  --accent-soft: #ff8f6d;
+  --line: #4a4136;
+  --good: #7ed99a;
+  --bad: #ff9d9d;
+  --black: #000000;
+  --black-border: #4a4136;
+  --orb-a: #6b5420;
+  --orb-b: #6e3a29;
+  --nav-bg: rgba(0, 0, 0, 0.35);
+  --panel-bg: rgba(34, 28, 21, 0.88);
+  --field-bg: #26201a;
+  --surface-2: #221d16;
+  --surface-3: #262019;
+  --secondary-bg: #3a322a;
+  --pill-bg: rgba(0, 0, 0, 0.3);
+  --cell-bg: #2b251e;
+  --cell-border: #57493c;
+  --cell-num: #cfc2b0;
+  --cell-active-word: #3e3423;
+  --cell-active-cell: #5b4a29;
+  --cell-active-border: #b3945e;
+  --focus-ring: #d7b784;
+  --clue-active-bg: #443a28;
+  --clue-active-ink: #f4ecdd;
+  --clue-hover-bg: #322b21;
+  --overlay-backdrop: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .bg-orb {
+  opacity: 0.2;
 }
 
 a {
@@ -24,7 +91,7 @@ body {
   min-height: 100vh;
   font-family: "Space Grotesk", sans-serif;
   color: var(--ink);
-  background: radial-gradient(circle at 20% 20%, #fff8df 0%, var(--bg) 55%, #efe5d4 100%);
+  background: radial-gradient(circle at 20% 20%, var(--bg-grad-a) 0%, var(--bg) 55%, var(--bg-grad-b) 100%);
   position: relative;
   overflow-x: hidden;
 }
@@ -42,7 +109,7 @@ body {
 .orb-a {
   width: 320px;
   height: 320px;
-  background: #ffd57b;
+  background: var(--orb-a);
   top: -100px;
   right: 8%;
 }
@@ -50,7 +117,7 @@ body {
 .orb-b {
   width: 260px;
   height: 260px;
-  background: #ff9f85;
+  background: var(--orb-b);
   bottom: -100px;
   left: 4%;
   animation-duration: 13s;
@@ -83,7 +150,7 @@ body {
   margin-top: 1rem;
   display: inline-flex;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--nav-bg);
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 0.28rem;
@@ -98,7 +165,22 @@ body {
 
 .top-nav a[aria-current="page"] {
   background: var(--ink);
-  color: #fff;
+  color: var(--on-ink);
+}
+
+.top-nav .nav-btn {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.top-nav .nav-btn:hover {
+  background: color-mix(in srgb, var(--ink), transparent 88%);
+  transform: none;
 }
 
 .layout {
@@ -111,7 +193,7 @@ body {
 }
 
 .panel {
-  background: color-mix(in srgb, var(--paper), #ffffff 50%);
+  background: var(--panel-bg);
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 1.2rem;
@@ -147,7 +229,8 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 0.5rem 0.6rem;
-  background: #fffdf9;
+  background: var(--field-bg);
+  color: var(--ink);
 }
 
 .toolbar {
@@ -162,7 +245,7 @@ button {
   border-radius: 10px;
   padding: 0.55rem 0.8rem;
   background: var(--ink);
-  color: #fff;
+  color: var(--on-ink);
   font-weight: 600;
   cursor: pointer;
 }
@@ -177,12 +260,13 @@ button:hover {
 }
 
 .board-wrap {
+  position: relative;
   max-width: 100%;
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 0.7rem;
-  background: #fffefa;
+  background: var(--surface-2);
   overscroll-behavior-x: contain;
   min-width: 0;
 }
@@ -202,23 +286,23 @@ button:hover {
 .cell {
   width: var(--cell-size);
   height: var(--cell-size);
-  border: 1px solid #dacbbb;
-  background: #fff;
+  border: 1px solid var(--cell-border);
+  background: var(--cell-bg);
   position: relative;
 }
 
 .cell.black {
   background: var(--black);
-  border-color: #000;
+  border-color: var(--black-border);
 }
 
 .cell.active-word {
-  background: #f6efd9;
+  background: var(--cell-active-word);
 }
 
 .cell.active-cell {
-  background: #e7d7b4;
-  border-color: #be9d6d;
+  background: var(--cell-active-cell);
+  border-color: var(--cell-active-border);
 }
 
 .cell-num {
@@ -226,7 +310,7 @@ button:hover {
   top: max(1px, calc(var(--cell-size) * 0.06));
   left: max(2px, calc(var(--cell-size) * 0.09));
   font-size: clamp(0.42rem, calc(var(--cell-size) * 0.18), 0.58rem);
-  color: #5c4d41;
+  color: var(--cell-num);
   user-select: none;
 }
 
@@ -240,11 +324,12 @@ button:hover {
   font-weight: 700;
   font-size: clamp(0.72rem, calc(var(--cell-size) * 0.5), 1rem);
   background: transparent;
+  color: var(--ink);
   padding: 0;
 }
 
 .cell input:focus {
-  outline: 2px solid #d7b784;
+  outline: 2px solid var(--focus-ring);
 }
 
 .clues-grid {
@@ -293,7 +378,7 @@ button:hover {
   padding: 0.55rem 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  background: #f2e5d7;
+  background: var(--secondary-bg);
   color: var(--ink);
   border: 1px solid var(--line);
 }
@@ -314,7 +399,7 @@ button:hover {
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fffef9;
+  background: var(--surface-2);
 }
 
 .saved-draft-name {
@@ -370,12 +455,12 @@ button:hover {
 }
 
 .solver-clues li.active-clue {
-  background: #f5ecd8;
-  color: #2f2418;
+  background: var(--clue-active-bg);
+  color: var(--clue-active-ink);
 }
 
 .solver-clues li:hover {
-  background: #f7f0de;
+  background: var(--clue-hover-bg);
 }
 
 .solver-panel {
@@ -449,6 +534,18 @@ button:hover {
   color: var(--bad);
 }
 
+/* Check/Reveal marks on grid letters: must out-specify the base
+   `.cell input { color: var(--ink) }` rule so the state color actually wins. */
+.cell input.good {
+  color: var(--good);
+}
+
+.cell input.bad {
+  color: var(--bad);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
 .site-footer {
   padding: 1rem 0 2rem;
   color: var(--muted);
@@ -475,7 +572,7 @@ textarea {
 }
 
 .secondary-btn {
-  background: #f2e5d7;
+  background: var(--secondary-bg);
   color: var(--ink);
   border: 1px solid var(--line);
 }
@@ -488,7 +585,7 @@ textarea {
 .entry-rows {
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fffef9;
+  background: var(--surface-2);
   padding: 0.55rem;
   max-height: 320px;
   overflow-y: auto;
@@ -516,7 +613,7 @@ textarea {
 }
 
 .remove-row-btn {
-  background: #efe3d5;
+  background: var(--secondary-bg);
   color: var(--ink);
   border: 1px solid var(--line);
   white-space: nowrap;
@@ -533,14 +630,14 @@ textarea {
 }
 
 .mode-tab-btn {
-  background: #f2e5d7;
+  background: var(--secondary-bg);
   color: var(--ink);
   border: 1px solid var(--line);
 }
 
 .mode-tab-btn.active {
   background: var(--ink);
-  color: #fff;
+  color: var(--on-ink);
 }
 
 .manual-builder {
@@ -555,7 +652,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 0.7rem;
-  background: #fffefa repeating-linear-gradient(
+  background: var(--surface-2) repeating-linear-gradient(
       0deg,
       transparent,
       transparent 35px,
@@ -614,7 +711,8 @@ select {
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 0.5rem 0.6rem;
-  background: #fffdf9;
+  background: var(--field-bg);
+  color: var(--ink);
   font: inherit;
 }
 
@@ -622,7 +720,7 @@ select {
   margin-top: 0.9rem;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fffaf3;
+  background: var(--surface-3);
   padding: 0.75rem;
 }
 
@@ -671,7 +769,7 @@ select {
 
 .pill {
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--pill-bg);
   border-radius: 999px;
   padding: 0.3rem 0.6rem;
 }
@@ -682,12 +780,12 @@ select {
   border-radius: 10px;
   padding: 0.55rem 0.8rem;
   background: var(--ink);
-  color: #fff;
+  color: var(--on-ink);
   font-weight: 600;
 }
 
 .btn-link.secondary {
-  background: #f2e5d7;
+  background: var(--secondary-bg);
   color: var(--ink);
   border: 1px solid var(--line);
 }
@@ -761,5 +859,202 @@ select {
   .solver-clues {
     max-height: 40vh;
     max-height: 40dvh;
+  }
+}
+
+/* --- Solve timer & pause --------------------------------------------------- */
+
+.solver-timer-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.solve-timer {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.05rem;
+  min-width: 4.5ch;
+}
+
+.pause-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  gap: 0.7rem;
+  text-align: center;
+  background: var(--surface-2);
+  border-radius: 12px;
+}
+
+.pause-overlay.hidden {
+  display: none;
+}
+
+.pause-overlay p {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.grid-paused {
+  visibility: hidden;
+}
+
+/* --- Shared dialogs (help, completion) ------------------------------------- */
+
+.site-dialog {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel-bg);
+  color: var(--ink);
+  padding: 1.4rem;
+  width: min(580px, 92vw);
+  max-height: 85vh;
+  overflow: auto;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+}
+
+.site-dialog::backdrop {
+  background: var(--overlay-backdrop);
+}
+
+.site-dialog h2 {
+  margin-top: 0;
+  font-family: "Fraunces", serif;
+}
+
+.site-dialog h3 {
+  margin: 1rem 0 0.4rem;
+}
+
+.site-dialog ul {
+  margin: 0.35rem 0 0.6rem;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.site-dialog kbd {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 0 0.3rem;
+  background: var(--surface-2);
+  font-size: 0.85em;
+  font-family: inherit;
+}
+
+.dialog-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* --- Print ------------------------------------------------------------------ */
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+    overflow: visible;
+  }
+
+  .bg-orb,
+  .top-nav,
+  .site-footer,
+  .toolbar,
+  .share-output,
+  .solver-board-toolbar,
+  .solver-scroll-hint,
+  .pause-overlay,
+  .site-dialog,
+  button {
+    display: none !important;
+  }
+
+  .site-header,
+  .layout {
+    width: 100%;
+  }
+
+  .site-header {
+    padding: 0 0 0.5rem;
+  }
+
+  .panel {
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    background: none;
+    padding: 0;
+    animation: none;
+    color: #000;
+  }
+
+  .solver-panel {
+    display: block;
+  }
+
+  .board-wrap {
+    border: 0;
+    padding: 0;
+    background: none;
+    overflow: visible;
+  }
+
+  .crossword-grid {
+    /* Fit any reasonable puzzle on one letter/A4 sheet: cap cell size and
+       scale down by column/row count (accounting for the 2px cell gaps).
+       --grid-cols/--grid-rows are set by solver.js when the grid is drawn. */
+    --cell-size: min(
+      9mm,
+      calc((170mm - (var(--grid-cols, 15) - 1) * 2px) / var(--grid-cols, 15)),
+      calc((175mm - (var(--grid-rows, 15) - 1) * 2px) / var(--grid-rows, 15))
+    );
+    visibility: visible;
+  }
+
+  .cell {
+    border: 1px solid #444;
+    background: #fff;
+  }
+
+  .cell.black {
+    background: #000 !important;
+    border-color: #000;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .cell-num {
+    color: #000;
+  }
+
+  /* Print a blank grid regardless of on-screen progress. */
+  .cell input {
+    color: transparent !important;
+  }
+
+  .clues-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.8rem;
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .solver-clues {
+    max-height: none;
+    overflow: visible;
+    font-size: 0.85rem;
+  }
+
+  .solver-clues li.active-clue,
+  .solver-clues li:hover {
+    background: none;
+    color: inherit;
   }
 }
