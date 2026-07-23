@@ -534,6 +534,18 @@ button:hover {
   color: var(--bad);
 }
 
+/* Check/Reveal marks on grid letters: must out-specify the base
+   `.cell input { color: var(--ink) }` rule so the state color actually wins. */
+.cell input.good {
+  color: var(--good);
+}
+
+.cell input.bad {
+  color: var(--bad);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
 .site-footer {
   padding: 1rem 0 2rem;
   color: var(--muted);
